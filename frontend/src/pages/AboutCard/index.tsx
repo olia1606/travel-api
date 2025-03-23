@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import { useNavigate, useParams } from "react-router";
 import axios from "axios";
-import { Card } from "../../types/cardType";
+import { Card, Dop } from "../../types/cardType";
 import { Review } from "../../types/reviewType";
 import Header from "../../components/Header";
 
@@ -12,6 +12,7 @@ const AboutCard = () => {
 
   const [card, setCard] = useState<Card | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [dop, setDop] = useState<Dop[]>([]);
   const [openSection, setOpenSection] = useState<string[]>([]);
 
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -66,13 +67,9 @@ const AboutCard = () => {
         destination_id: updatedCard?.destination?.id,
       };
 
-      await axios.put(
-        `http://127.0.0.1:8000/api/travels/${id}/`,
-        updatedData,
-        {
-          withCredentials: true,
-        }
-      );
+      await axios.put(`http://127.0.0.1:8000/api/travels/${id}/`, updatedData, {
+        withCredentials: true,
+      });
       setIsEditMode(false);
       fetchCard(id!);
     } catch (error) {
@@ -196,6 +193,39 @@ const AboutCard = () => {
               <div>
                 <button
                   className={`${styles.additional__title} ${
+                    openSection.includes("dop") ? styles.open : ""
+                  }`}
+                  onClick={() => toggleSection("dop")}
+                >
+                  Дополнительные услуги
+                  <span className={styles.arrow} />
+                </button>
+                {openSection.includes("dop") && (
+                  <div className={styles.additional__content}>
+                    {card.extra_services.length > 0 ? (
+                      card.extra_services.map((service) => (
+                        <div
+                          key={service.id}
+                          className={styles.additional__review}
+                        >
+                          <p>
+                            <strong>Услуга:</strong> {service.name}
+                          </p>
+                          <p>
+                            <strong>Описание:</strong> {service.description}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p>Дополнительные услуги отсутствуют.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <button
+                  className={`${styles.additional__title} ${
                     openSection.includes("delivery") ? styles.open : ""
                   }`}
                   onClick={() => toggleSection("delivery")}
@@ -205,7 +235,12 @@ const AboutCard = () => {
                 </button>
                 {openSection.includes("delivery") && (
                   <div className={styles.additional__content}>
-                    <p>{card.destination.country.name}</p>
+                    <p>
+                      {card.destination.country.name} -{" "}
+                      <a target="_blank" href={card.destination.country.url}>
+                        Ссылка на информацию о стране
+                      </a>
+                    </p>
                   </div>
                 )}
               </div>
@@ -237,38 +272,50 @@ const AboutCard = () => {
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h2>Редактировать тур</h2>
-            <input
-              type="text"
-              placeholder="Название"
-              className={styles.search__input}
-              value={updatedCard?.name || ""}
-              onChange={(e) =>
-                setUpdatedCard((prev) => ({ ...prev!, name: e.target.value }))
-              }
-            />
-            <input
-              type="number"
-              placeholder="Цена"
-              className={styles.search__input}
-              value={updatedCard?.price || ""}
-              onChange={(e) =>
-                setUpdatedCard((prev) => ({
-                  ...prev!,
-                  price: String(e.target.value),
-                }))
-              }
-            />
-            <textarea
-              placeholder="Описание"
-              className={styles.search__input}
-              value={updatedCard?.description || ""}
-              onChange={(e) =>
-                setUpdatedCard((prev) => ({
-                  ...prev!,
-                  description: e.target.value,
-                }))
-              }
-            />
+            <label className={styles.search__label}>
+              Название
+              <input
+                type="text"
+                placeholder="Название"
+                className={styles.search__input}
+                value={updatedCard?.name || ""}
+                onChange={(e) =>
+                  setUpdatedCard((prev) => ({ ...prev!, name: e.target.value }))
+                }
+              />
+            </label>
+
+            <label className={styles.search__label}>
+              Цена
+              <input
+                type="number"
+                placeholder="Цена"
+                className={styles.search__input}
+                value={updatedCard?.price || ""}
+                onChange={(e) =>
+                  setUpdatedCard((prev) => ({
+                    ...prev!,
+                    price: String(e.target.value),
+                  }))
+                }
+              />
+            </label>
+
+            <label className={styles.search__label}>
+              Описание
+              <textarea
+                placeholder="Описание"
+                className={styles.search__textarea}
+                value={updatedCard?.description || ""}
+                onChange={(e) =>
+                  setUpdatedCard((prev) => ({
+                    ...prev!,
+                    description: e.target.value,
+                  }))
+                }
+              />
+            </label>
+
             <button className={styles.buttons__cart} onClick={handleEdit}>
               Сохранить
             </button>

@@ -4,6 +4,8 @@ from django.db import models
 # Create your models here.
 class Country(models.Model):
     name = models.CharField(max_length=50)
+    url = models.URLField(blank=True, null=True)
+
     class Meta:
         verbose_name_plural = "Страна"
         verbose_name = "Страна"
@@ -20,7 +22,18 @@ class Destination(models.Model):
 
     def __str__(self):
         return self.name
+    
 
+class ExtraService(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    
+    class Meta:
+        verbose_name_plural = "Дополнительные опции"
+        verbose_name = "Дополнительные опции"
+        
+    def __str__(self):
+        return self.name
 
 
 class TravelPackage(models.Model):
@@ -28,7 +41,8 @@ class TravelPackage(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    duration = models.PositiveIntegerField(help_text="Duration in days")\
+    duration = models.PositiveIntegerField(help_text="Duration in days")
+    extra_services = models.ManyToManyField(ExtraService, blank=True)
 
     class Meta:
         verbose_name_plural = "Туры"

@@ -2,6 +2,13 @@
 export type Country = {
   id: number;
   name: string;
+  url: string;
+};
+
+export type Dop = {
+  id: number;
+  name: string;
+  description: string;
 };
 
 // Тип для направления
@@ -21,4 +28,5 @@ export type Card = {
   description: string;
   price: string;
   duration: number;
+  extra_services: Dop[];
 };
